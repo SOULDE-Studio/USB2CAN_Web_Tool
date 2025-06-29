@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>USB2CAN上位机</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+            color: #333;
+        }
+
+        h3 {
+            color: #2c3e50;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            margin-right: 10px;
+            font-weight: 500;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        select,
+        input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        select:focus,
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .flex-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .channel-container {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .receive-container {
+            width: 100%;
+        }
+
+        #receiveArea,
+        #logArea {
+            height: 200px;
+            border: 1px solid #ddd;
+            overflow-y: auto;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+        }
+
+        /* 协议说明部分样式 */
+        .protocol-section {
+            margin-top: 20px;
+        }
+
+        .protocol-header {
+            cursor: pointer;
+            background-color: #34495e;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        .protocol-header:hover {
+            background-color: #2c3e50;
+        }
+
+        .protocol-header span {
+            font-weight: 600;
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s;
+        }
+
+        .protocol-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) inset;
+        }
+
+        .timer-controls {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .timer-controls input {
+            width: 100px;
+        }
+
+        .timer-status {
+            margin-left: 10px;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
+        .status-active {
+            color: #27ae60;
+            background-color: #eafaf1;
+        }
+
+        .status-inactive {
+            color: #e74c3c;
+            background-color: #fdedeb;
+        }
+
+        .data-fields {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .data-fields input {
+            width: calc(12.5% - 5px);
+            min-width: 50px;
+            margin-bottom: 5px;
+        }
+
+        /* 协议内容表格样式 */
+        .protocol-content h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .protocol-content h3 {
+            color: #34495e;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            border-bottom: none;
+        }
+
+        .protocol-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .protocol-content th,
+        .protocol-content td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .protocol-content th {
+            background-color: #f5f5f5;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .protocol-content tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .protocol-content tr:hover {
+            background-color: #f0f0f0;
+        }
+
+        .protocol-content blockquote {
+            background-color: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .protocol-content blockquote p {
+            margin: 0;
+        }
+
+        .protocol-content strong {
+            color: #34495e;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>USB2CAN上位机</h3>
+    <div class="container">
+        <button id="connectBtn">连接串口</button>
+    </div>
+
+    <div class="flex-container">
+        <!-- 通道1发送区域 -->
+        <div class="channel-container container">
+            <h4>CAN通道1发送</h4>
+            <select id="channel1DataType">
+                <option value="0">标准帧</option>
+                <option value="1">扩展帧</option>
+            </select>
+            <select id="channel1Datalength">
+                <option value="8">数据长度：8</option>
+                <option value="1">数据长度：1</option>
+                <option value="2">数据长度：2</option>
+                <option value="3">数据长度：3</option>
+                <option value="4">数据长度：4</option>
+                <option value="5">数据长度：5</option>
+                <option value="6">数据长度：6</option>
+                <option value="7">数据长度：7</option>
+            </select>
+            <input type="text" id="channel1CAN_id" placeholder="CAN帧_ID">
+            <h5>发送的CAN数据（仅支持16进制，按回车跳到下一个框）：</h5>
+            <div class="data-fields">
+                <input type="text" id="channel1Data0" placeholder="字节0">
+                <input type="text" id="channel1Data1" placeholder="字节1">
+                <input type="text" id="channel1Data2" placeholder="字节2">
+                <input type="text" id="channel1Data3" placeholder="字节3">
+                <input type="text" id="channel1Data4" placeholder="字节4">
+                <input type="text" id="channel1Data5" placeholder="字节5">
+                <input type="text" id="channel1Data6" placeholder="字节6">
+                <input type="text" id="channel1Data7" placeholder="字节7">
+            </div>
+            <div class="timer-controls">
+                <label for="channel1Interval">发送间隔(ms，>100ms):</label>
+                <input type="number" id="channel1Interval" min="0.125" step="0.125" value="1000" placeholder="间隔时间">
+                <button id="channel1StartTimer">开始定时</button>
+                <button id="channel1StopTimer" disabled>停止定时</button>
+                <span class="timer-status status-inactive" id="channel1Status">未启动</span>
+            </div>
+            <button id="channel1SendBtn">发送数据</button>
+        </div>
+
+        <!-- 通道2发送区域 -->
+        <div class="channel-container container">
+            <h4>CAN通道2发送</h4>
+            <select id="channel2DataType">
+                <option value="0">标准帧</option>
+                <option value="1">扩展帧</option>
+            </select>
+            <select id="channel2Datalength">
+                <option value="8">数据长度：8</option>
+                <option value="1">数据长度：1</option>
+                <option value="2">数据长度：2</option>
+                <option value="3">数据长度：3</option>
+                <option value="4">数据长度：4</option>
+                <option value="5">数据长度：5</option>
+                <option value="6">数据长度：6</option>
+                <option value="7">数据长度：7</option>
+            </select>
+            <input type="text" id="channel2CAN_id" placeholder="CAN帧_ID">
+            <h5>发送的CAN数据（仅支持16进制，按回车跳到下一个框）：</h5>
+            <div class="data-fields">
+                <input type="text" id="channel2Data0" placeholder="字节0">
+                <input type="text" id="channel2Data1" placeholder="字节1">
+                <input type="text" id="channel2Data2" placeholder="字节2">
+                <input type="text" id="channel2Data3" placeholder="字节3">
+                <input type="text" id="channel2Data4" placeholder="字节4">
+                <input type="text" id="channel2Data5" placeholder="字节5">
+                <input type="text" id="channel2Data6" placeholder="字节6">
+                <input type="text" id="channel2Data7" placeholder="字节7">
+            </div>
+            <div class="timer-controls">
+                <label for="channel2Interval">发送间隔(ms，>100ms):</label>
+                <input type="number" id="channel2Interval" min="0.125" step="0.125" value="1000" placeholder="间隔时间">
+                <button id="channel2StartTimer">开始定时</button>
+                <button id="channel2StopTimer" disabled>停止定时</button>
+                <span class="timer-status status-inactive" id="channel2Status">未启动</span>
+            </div>
+            <button id="channel2SendBtn">发送数据</button>
+        </div>
+    </div>
+
+    <div class="receive-container container">
+        <h5>接收到的数据：</h5>
+        <div id="receiveArea"></div>
+        <h5>控制台数据：</h5>
+        <div id="logArea" style="height: 200px; border: 1px solid #ddd; overflow-y: auto; margin-top: 10px;"></div>
+    </div>
+
+    <!-- 协议说明折叠面板 -->
+    <div class="protocol-section">
+        <div class="protocol-header" id="protocolToggle">
+            <span>USB2CAN模块协议说明(点击展开)</span>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="protocol-content" id="protocolContent">
+            <h2>协议内容</h2>
+
+            <h3>基本协议格式</h3>
+            <table>
+                <tr>
+                    <th>ID（1Byte）</th>
+                    <th>数据（nBytes）</th>
+                    <th>CRC8校验（1Byte）</th>
+                </tr>
+                <tr>
+                    <td>决定数据功能</td>
+                    <td>不定长，由ID决定</td>
+                    <td>校验</td>
+                </tr>
+            </table>
+
+            <h3>CAN数据发送（上位机 -> 模块）</h3>
+            <blockquote>
+                <p>ID：0XA8</p>
+                <p>数据长度：15Bytes</p>
+                <p>例如：使用CAN通道：1，can设备ID为：0x7ff，标准帧，数据长度为：4，数据内容为：0xff 0xff 0x00 0x82</p>
+                <p>发送的数据（16进制）为：A8 01 FF 07 00 00 00 04 FF FF 00 82 E1  （最后一个字节为crc校验结果）</p>
+            </blockquote>
+            <p><strong>数据（nBytes）格式</strong></p>
+            <table>
+                <tr>
+                    <th>通道数（1Byte）</th>
+                    <th>CAN设备ID（4Bytes）</th>
+                    <th>帧类型（1Byte）</th>
+                    <th>数据长度（1Byte）</th>
+                    <th>数据（8Bytes）</th>
+                </tr>
+                <tr>
+                    <td>选择发送数据的CAN设备（1或2）</td>
+                    <td>CAN数据帧目标设备ID，电机ID，高字节在右</td>
+                    <td>选择标准帧（0）或拓展帧（1）</td>
+                    <td>CAN数据帧数据长度（最大为8）</td>
+                    <td>要发送的数据</td>
+                </tr>
+            </table>
+
+            <h3>CAN数据接收（模块 -> 上位机）</h3>
+            <blockquote>
+                <p>ID：0XA9</p>
+                <p>数据长度：15Bytes</p>
+            </blockquote>
+            <p><strong>数据（nBytes）格式</strong></p>
+            <table>
+                <tr>
+                    <th>通道数（1Byte）</th>
+                    <th>CAN设备ID（4Bytes）</th>
+                    <th>帧类型（1Byte）</th>
+                    <th>数据长度（1Byte）</th>
+                    <th>数据（8Bytes）</th>
+                </tr>
+                <tr>
+                    <td>接收到数据的CAN设备（1或2）</td>
+                    <td>CAN数据帧ID,电机ID，高字节在右</td>
+                    <td>标准帧（0）或拓展帧（1）</td>
+                    <td>收到的CAN数据帧数据长度</td>
+                    <td>接收到的数据</td>
+                </tr>
+
+            </table>
+        </div>
+    </div>
+
+    <h3>本工具需要与专用USB2两路CAN模块配套使用，相关链接：</h3>
+    <div>
+        <a href="https://e.tb.cn/h.TBC18sl6EZKXUjL?tk=C5g5eLgyMf6HU071">USB转2路CAN模块购买地址 </a>
+        <p>---</p>
+        <a href="https://pan.baidu.com/s/1EwYDNQ0jMKyTSvJEEcj6aw?pwd=10ob">模块说明书以及SDK下载地址</a>
+        <p>---</p>
+    </div>
+
+    <script>
+        const CRC8_INIT = 0xff;
+        const CRC8_TAB = [
+            0x00, 0x5e, 0xbc, 0xe2, 0x61, 0x3f, 0xdd, 0x83, 0xc2, 0x9c, 0x7e, 0x20, 0xa3, 0xfd, 0x1f, 0x41,
+            0x9d, 0xc3, 0x21, 0x7f, 0xfc, 0xa2, 0x40, 0x1e, 0x5f, 0x01, 0xe3, 0xbd, 0x3e, 0x60, 0x82, 0xdc,
+            0x23, 0x7d, 0x9f, 0xc1, 0x42, 0x1c, 0xfe, 0xa0, 0xe1, 0xbf, 0x5d, 0x03, 0x80, 0xde, 0x3c, 0x62,
+            0xbe, 0xe0, 0x02, 0x5c, 0xdf, 0x81, 0x63, 0x3d, 0x7c, 0x22, 0xc0, 0x9e, 0x1d, 0x43, 0xa1, 0xff,
+            0x46, 0x18, 0xfa, 0xa4, 0x27, 0x79, 0x9b, 0xc5, 0x84, 0xda, 0x38, 0x66, 0xe5, 0xbb, 0x59, 0x07,
+            0xdb, 0x85, 0x67, 0x39, 0xba, 0xe4, 0x06, 0x58, 0x19, 0x47, 0xa5, 0xfb, 0x78, 0x26, 0xc4, 0x9a,
+            0x65, 0x3b, 0xd9, 0x87, 0x04, 0x5a, 0xb8, 0xe6, 0xa7, 0xf9, 0x1b, 0x45, 0xc6, 0x98, 0x7a, 0x24,
+            0xf8, 0xa6, 0x44, 0x1a, 0x99, 0xc7, 0x25, 0x7b, 0x3a, 0x64, 0x86, 0xd8, 0x5b, 0x05, 0xe7, 0xb9,
+            0x8c, 0xd2, 0x30, 0x6e, 0xed, 0xb3, 0x51, 0x0f, 0x4e, 0x10, 0xf2, 0xac, 0x2f, 0x71, 0x93, 0xcd,
+            0x11, 0x4f, 0xad, 0xf3, 0x70, 0x2e, 0xcc, 0x92, 0xd3, 0x8d, 0x6f, 0x31, 0xb2, 0xec, 0x0e, 0x50,
+            0xaf, 0xf1, 0x13, 0x4d, 0xce, 0x90, 0x72, 0x2c, 0x6d, 0x33, 0xd1, 0x8f, 0x0c, 0x52, 0xb0, 0xee,
+            0x32, 0x6c, 0x8e, 0xd0, 0x53, 0x0d, 0xef, 0xb1, 0xf0, 0xae, 0x4c, 0x12, 0x91, 0xcf, 0x2d, 0x73,
+            0xca, 0x94, 0x76, 0x28, 0xab, 0xf5, 0x17, 0x49, 0x08, 0x56, 0xb4, 0xea, 0x69, 0x37, 0xd5, 0x8b,
+            0x57, 0x09, 0xeb, 0xb5, 0x36, 0x68, 0x8a, 0xd4, 0x95, 0xcb, 0x29, 0x77, 0xf4, 0xaa, 0x48, 0x16,
+            0xe9, 0xb7, 0x55, 0x0b, 0x88, 0xd6, 0x34, 0x6a, 0x2b, 0x75, 0x97, 0xc9, 0x4a, 0x14, 0xf6, 0xa8,
+            0x74, 0x2a, 0xc8, 0x96, 0x15, 0x4b, 0xa9, 0xf7, 0xb6, 0xe8, 0x0a, 0x54, 0xd7, 0x89, 0x6b, 0x35
+        ];
+
+        let serialPort = null;
+        let isHexMode = false;
+        let channel1Timer = null;
+        let channel2Timer = null;
+        const connectBtn = document.getElementById('connectBtn');
+        const channel1SendBtn = document.getElementById('channel1SendBtn');
+        const channel2SendBtn = document.getElementById('channel2SendBtn');
+        const channel1StartTimer = document.getElementById('channel1StartTimer');
+        const channel1StopTimer = document.getElementById('channel1StopTimer');
+        const channel2StartTimer = document.getElementById('channel2StartTimer');
+        const channel2StopTimer = document.getElementById('channel2StopTimer');
+        const channel1Interval = document.getElementById('channel1Interval');
+        const channel2Interval = document.getElementById('channel2Interval');
+        const channel1Status = document.getElementById('channel1Status');
+        const channel2Status = document.getElementById('channel2Status');
+        const channel1DataType = document.getElementById('channel1DataType');
+        const channel1Datalength = document.getElementById('channel1Datalength');
+        const channel1CAN_id = document.getElementById('channel1CAN_id');
+        const channel1DataInputs = [
+            document.getElementById('channel1Data0'),
+            document.getElementById('channel1Data1'),
+            document.getElementById('channel1Data2'),
+            document.getElementById('channel1Data3'),
+            document.getElementById('channel1Data4'),
+            document.getElementById('channel1Data5'),
+            document.getElementById('channel1Data6'),
+            document.getElementById('channel1Data7')
+        ];
+        const channel2DataType = document.getElementById('channel2DataType');
+        const channel2Datalength = document.getElementById('channel2Datalength');
+        const channel2CAN_id = document.getElementById('channel2CAN_id');
+        const channel2DataInputs = [
+            document.getElementById('channel2Data0'),
+            document.getElementById('channel2Data1'),
+            document.getElementById('channel2Data2'),
+            document.getElementById('channel2Data3'),
+            document.getElementById('channel2Data4'),
+            document.getElementById('channel2Data5'),
+            document.getElementById('channel2Data6'),
+            document.getElementById('channel2Data7')
+        ];
+        const logArea = document.getElementById('logArea');
+        const receiveArea = document.getElementById('receiveArea');
+        const protocolToggle = document.getElementById('protocolToggle');
+        const protocolContent = document.getElementById('protocolContent');
+
+        // 回车跳到下一个数据栏（通道1）
+        channel1DataInputs.forEach((input, index) => {
+            input.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    if (index < channel1DataInputs.length - 1) {
+                        channel1DataInputs[index + 1].focus();
+                    } else {
+                        channel1SendBtn.click();
+                    }
+                }
+            });
+        });
+
+        // 回车跳到下一个数据栏（通道2）
+        channel2DataInputs.forEach((input, index) => {
+            input.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    if (index < channel2DataInputs.length - 1) {
+                        channel2DataInputs[index + 1].focus();
+                    } else {
+                        channel2SendBtn.click();
+                    }
+                }
+            });
+        });
+
+        // 连接串口
+        connectBtn.addEventListener('click', async () => {
+            try {
+                if (serialPort && serialPort.writable) {
+                    log('已连接到串口，无需重复连接');
+                    return;
+                }
+
+                // 请求选择串口设备
+                serialPort = await navigator.serial.requestPort();
+                // 配置串口参数（根据设备需求调整）
+                await serialPort.open({
+                    baudRate: 9600,       // 波特率
+                    dataBits: 8,          // 数据位
+                    parity: 'none',       // 校验位
+                    stopBits: 1,          // 停止位
+                    flowControl: 'none'   // 流控制
+                });
+                log('成功连接到串口设备');
+
+                // 开始接收数据（改进版）
+                startReceivingData();
+
+            } catch (error) {
+                log(`连接失败: ${error.message}`);
+            }
+        });
+
+        // 单独的数据接收函数，使用异步迭代器处理
+        async function startReceivingData() {
+            if (!serialPort || !serialPort.readable) return;
+
+            const reader = serialPort.readable.getReader();
+
+            try {
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) {
+                        log('数据接收完成，连接已断开');
+                        break;
+                    }
+
+                    // 处理接收到的数据
+                    processReceivedData(value);
+                }
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    log(`接收数据时出错: ${error.message}`);
+                }
+            } finally {
+                reader.releaseLock();
+            }
+        }
+
+        // 数据处理函数
+        function processReceivedData(buffer) {
+            const value = new Uint8Array(buffer);
+
+            // 简单的帧验证 - 假设CAN帧至少有一定长度
+            if (value.length < 6) {
+                log(`接收到不完整的帧: ${bytesToHexString(value)}`);
+                return;
+            }
+
+            try {
+                // 转换为16进制显示
+                const hexStr = bytesToHexString(value);
+                log(`接收16进制: ${hexStr}`);
+
+                // 解码并显示在接收框
+                if (value[0] === 0xA9) {
+                    const channelNum = value[1];
+                    const canId = (value[5] << 24) | (value[4] << 16) | (value[3] << 8) | value[2];
+                    const frameType = value[6];
+                    const dataLength = value[7];
+                    const data = value.slice(8, 8 + dataLength);
+
+                    const decodedMessage = `通道: ${channelNum}   , CANID: 0x${canId.toString(16).padStart(8, '0')},  ${frameType === 0 ? '标准帧' : '扩展帧'}, 长度: ${dataLength}, 内容: ${bytesToHexString(data)}`;
+                    displayReceivedData(decodedMessage);
+                }
+            } catch (error) {
+                log(`解析数据时出错: ${error.message}`);
+                log(`原始数据: ${bytesToHexString(value)}`);
+            }
+        }
+
+        // 通道1发送数据
+        channel1SendBtn.addEventListener('click', async () => {
+            if (!serialPort || !serialPort.writable) {
+                log('请先连接串口');
+                return;
+            }
+
+            try {
+                const canIdValue = parseInt(channel1CAN_id.value, 16);
+                const dataBuffer = new Uint8Array([
+                    0xA8, 1,
+                    canIdValue & 0xff,           // 第一个字节
+                    (canIdValue >> 8) & 0xff,    // 第二个字节
+                    (canIdValue >> 16) & 0xff,   // 第三个字节
+                    (canIdValue >> 24) & 0xff,   // 第四个字节
+                    parseInt(channel1DataType.value), parseInt(channel1Datalength.value),
+                    ...channel1DataInputs.map(input => parseInt(input.value, 16) || 0)
+                ]);
+
+                const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
+                const writer = serialPort.writable.getWriter();
+                await writer.write(crcDataBuffer);
+                writer.releaseLock();
+                log(`通道1 发送16进制: ${bytesToHexString(crcDataBuffer)}`);
+            } catch (error) {
+                log(`通道1 发送失败: ${error.message}`);
+            }
+        });
+
+        // 通道2发送数据
+        channel2SendBtn.addEventListener('click', async () => {
+            if (!serialPort || !serialPort.writable) {
+                log('请先连接串口');
+                return;
+            }
+
+            try {
+                const canIdValue = parseInt(channel2CAN_id.value, 16);
+                const dataBuffer = new Uint8Array([
+                    0xA8, 2,
+                    canIdValue & 0xff,           // 第一个字节
+                    (canIdValue >> 8) & 0xff,    // 第二个字节
+                    (canIdValue >> 16) & 0xff,   // 第三个字节
+                    (canIdValue >> 24) & 0xff,   // 第四个字节
+                    parseInt(channel2DataType.value), parseInt(channel2Datalength.value),
+                    ...channel2DataInputs.map(input => parseInt(input.value, 16) || 0)
+                ]);
+
+                const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
+                const writer = serialPort.writable.getWriter();
+                await writer.write(crcDataBuffer);
+                writer.releaseLock();
+                log(`通道2 发送16进制: ${bytesToHexString(crcDataBuffer)}`);
+            } catch (error) {
+                log(`通道2 发送失败: ${error.message}`);
+            }
+        });
+
+        // 通道1定时发送
+        channel1StartTimer.addEventListener('click', () => {
+            if (!serialPort || !serialPort.writable) {
+                log('请先连接串口');
+                return;
+            }
+
+            const interval = parseFloat(channel1Interval.value);
+            if (isNaN(interval) || interval <= 0) {
+                log('请输入有效的间隔时间');
+                return;
+            }
+
+            // 限制最大频率为8000Hz (最小间隔为0.125ms)
+            const safeInterval = Math.max(interval, 0.125);
+            if (safeInterval !== interval) {
+                channel1Interval.value = safeInterval;
+                log('已将间隔时间调整为最小值0.125ms (对应8000Hz)');
+            }
+
+            channel1Timer = setInterval(() => {
+                channel1SendBtn.click();
+            }, safeInterval);
+
+            channel1StartTimer.disabled = true;
+            channel1StopTimer.disabled = false;
+            channel1Status.textContent = '已启动';
+            channel1Status.className = 'timer-status status-active';
+            log(`通道1定时发送已启动，间隔 ${safeInterval}ms`);
+        });
+
+        // 通道1停止定时发送
+        channel1StopTimer.addEventListener('click', () => {
+            if (channel1Timer) {
+                clearInterval(channel1Timer);
+                channel1Timer = null;
+            }
+
+            channel1StartTimer.disabled = false;
+            channel1StopTimer.disabled = true;
+            channel1Status.textContent = '未启动';
+            channel1Status.className = 'timer-status status-inactive';
+            log('通道1定时发送已停止');
+        });
+
+        // 通道2定时发送
+        channel2StartTimer.addEventListener('click', () => {
+            if (!serialPort || !serialPort.writable) {
+                log('请先连接串口');
+                return;
+            }
+
+            const interval = parseFloat(channel2Interval.value);
+            if (isNaN(interval) || interval <= 0) {
+                log('请输入有效的间隔时间');
+                return;
+            }
+
+            // 限制最大频率为8000Hz (最小间隔为0.125ms)
+            const safeInterval = Math.max(interval, 0.125);
+            if (safeInterval !== interval) {
+                channel2Interval.value = safeInterval;
+                log('已将间隔时间调整为最小值0.125ms (对应8000Hz)');
+            }
+
+            channel2Timer = setInterval(() => {
+                channel2SendBtn.click();
+            }, safeInterval);
+
+            channel2StartTimer.disabled = true;
+            channel2StopTimer.disabled = false;
+            channel2Status.textContent = '已启动';
+            channel2Status.className = 'timer-status status-active';
+            log(`通道2定时发送已启动，间隔 ${safeInterval}ms`);
+        });
+
+        // 通道2停止定时发送
+        channel2StopTimer.addEventListener('click', () => {
+            if (channel2Timer) {
+                clearInterval(channel2Timer);
+                channel2Timer = null;
+            }
+
+            channel2StartTimer.disabled = false;
+            channel2StopTimer.disabled = true;
+            channel2Status.textContent = '未启动';
+            channel2Status.className = 'timer-status status-inactive';
+            log('通道2定时发送已停止');
+        });
+
+        // 页面卸载时清理定时器
+        window.addEventListener('beforeunload', () => {
+            if (channel1Timer) clearInterval(channel1Timer);
+            if (channel2Timer) clearInterval(channel2Timer);
+        });
+
+        // 日志输出
+        function log(message) {
+            const now = new Date().toLocaleTimeString();
+            logArea.innerHTML += `<div>[${now}] ${message}</div>`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        // 显示接收数据
+        function displayReceivedData(message) {
+            const now = new Date().toLocaleTimeString();
+            receiveArea.innerHTML += `<div>[${now}] ${message}   </div>`;
+            receiveArea.scrollTop = receiveArea.scrollHeight;
+        }
+
+        // 辅助函数: 字节数组转16进制字符串
+        function bytesToHexString(bytes) {
+            return Array.from(bytes)
+               .map(b => b.toString(16).padStart(2, '0'))
+               .join(' ');
+        }
+
+        // CRC8校验相关函数
+        function getCRC8CheckSum(data, initialValue = CRC8_INIT) {
+            let crc = initialValue;
+            for (let i = 0; i < data.length; i++) {
+                const index = crc ^ data[i];
+                crc = CRC8_TAB[index];
+            }
+            return crc;
+        }
+
+        function verifyCRC8CheckSum(data) {
+            if (data.length < 2) return false;
+            const dataWithoutCrc = data.slice(0, -1);
+            const expectedCrc = getCRC8CheckSum(dataWithoutCrc);
+            const actualCrc = data[data.length - 1];
+            return expectedCrc === actualCrc;
+        }
+
+        function appendCRC8CheckSum(data) {
+            const crc = getCRC8CheckSum(data);
+            const result = new Uint8Array([...data, crc]);
+            return result;
+        }
+
+        // 辅助函数: 16进制字符串转字节数组
+        function hexStringToBytes(hexString) {
+            const bytes = [];
+            for (let i = 0; i < hexString.length; i += 2) {
+                bytes.push(parseInt(hexString.substr(i, 2), 16));
+            }
+            return new Uint8Array(bytes);
+        }
+
+        // 添加折叠面板点击事件处理逻辑
+        protocolToggle.addEventListener('click', () => {
+            if (protocolContent.style.display === 'none') {
+                protocolContent.style.display = 'block';
+                protocolToggle.querySelector('.toggle-icon').style.transform = 'rotate(180deg)';
+            } else {
+                protocolContent.style.display = 'none';
+                protocolToggle.querySelector('.toggle-icon').style.transform = 'rotate(0)';
+            }
+        });
+    </script>
+    <!-- Matomo -->
+    <script>
+        var _paq = window._paq = window._paq || [];
+        /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+          var u="//matomo.robotsfan.com/";
+          _paq.push(['setTrackerUrl', u+'matomo.php']);
+          _paq.push(['setSiteId', '6']);
+          var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+          g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+    </script>
+    <!-- End Matomo Code -->
+</body>
+
+</html>    
