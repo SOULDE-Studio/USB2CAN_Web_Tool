@@ -3,32 +3,65 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>USB2CAN----灵足时代电机调试工具</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USB2CAN----灵足时代电机调试工具（手机版）</title>
     <style>
         /* 全局样式 */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f4f9;
             color: #333;
-            margin: 0;
             padding: 20px;
+            margin: 0;
         }
 
         h3 {
+            text-align: center;
             color: #2c3e50;
-            border-bottom: 1px solid #bdc3c7;
-            padding-bottom: 10px;
             margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        /* 折叠部分样式 */
+        details {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+            color: #2c3e50;
+        }
+
+        details[open] {
+            padding-bottom: 20px;
+        }
+
+        details[open] summary {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        ol {
+            padding-left: 20px;
         }
 
         /* 按钮样式 */
         button {
+            padding: 12px 15px;
+            margin: 5px;
+            width: calc(50% - 10px);
+            border: none;
+            border-radius: 5px;
             background-color: #3498db;
             color: white;
-            border: none;
-            padding: 10px 20px;
-            margin: 5px;
-            border-radius: 5px;
+            font-size: 1rem;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
@@ -37,38 +70,48 @@
             background-color: #2980b9;
         }
 
-        /* 输入框和选择框样式 */
+        /* 选择框和文本框样式 */
         select,
         textarea {
-            padding: 10px;
-            margin: 5px;
-            border: 1px solid #bdc3c7;
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
             border-radius: 5px;
-            width: 200px;
-        }
-
-        textarea {
-            resize: vertical;
-        }
-
-        /* 配置显示区域样式 */
-        #config-display {
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
+            font-size: 1rem;
         }
 
         /* 日志区域样式 */
         #logArea {
-            height: 200px;
-            border: 1px solid #bdc3c7;
+            height: 150px;
+            border: 1px solid #ddd;
             border-radius: 5px;
             overflow-y: auto;
-            margin-top: 20px;
+            margin-top: 10px;
+            background-color: #fff;
             padding: 10px;
-            background-color: white;
+        }
+
+        /* 配置显示区域样式 */
+        #config-display {
+            background-color: #fff;
+            padding: 15px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 电机状态数据区域样式 */
+        #velState {
+            height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow-y: auto;
+            margin-top: 10px;
+            background-color: #fff;
+            padding: 10px;
         }
 
         /* 链接样式 */
@@ -81,37 +124,96 @@
             text-decoration: underline;
         }
 
-        /* Flex 布局 */
-        .flex-container {
+        /* 按钮容器样式 */
+        .flex {
             display: flex;
             flex-wrap: wrap;
-            align-items: center;
+            gap: 10px;
+            justify-content: center;
             margin-bottom: 20px;
+        }
+
+        /* 配置显示参数样式 */
+        .font-semibold {
+            font-weight: 600;
+        }
+
+        .text-base {
+            font-size: 1rem;
+        }
+
+        .text-gray-800 {
+            color: #2d3748;
+        }
+
+        .text-gray-600 {
+            color: #718096;
+        }
+
+        .bg-gray-50 {
+            background-color: #f9fafb;
+        }
+
+        .px-3 {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+
+        .py-2 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .rounded {
+            border-radius: 0.25rem;
+        }
+
+        .border {
+            border: 1px solid #e2e8f0;
+        }
+
+        .ml-2 {
+            margin-left: 0.5rem;
         }
     </style>
 </head>
 
 <body>
-    <h3>USB2CAN----灵足时代电机调试工具</h3>
-    <div class="flex-container">
-        <button id="connectBtn">连接串口</button>
+    <h3>USB2CAN----灵足时代电机调试工具（手机版，只支持edge浏览器）</h3>
+    <details>
+        <summary>【手机版网页工具操作须知】</summary>
+        <ol>
+            <li>在应用商店下载： Edge浏览器，USB调试助手</li>
+            <li>安卓设备要求：必须运行 Android 10+（部分功能可能需要 Android 11+），
+                必须开启 USB 调试模式（设置 → 关于手机 → 软件信息 → 多次点击版本号开启开发者选项），
+                需要使用支持数据传输的 USB Type-C 数据线，
+                支持 USB OTG（大多数现代安卓设备都支持）</li>
+            <li>每次重新用数据线连接手机和模块之后，都需要先用usb调试助手打开一遍模块:首先点一次open到interface界面，再点第2个interface的open即可，
+                打开一遍之后可关闭usb调试助手，
+                之后在不断连的情况下便可以一直使用Web调用USB2CAN</li>
+        </ol>
+    </details>
+    <div class="flex">
+        <button id="connectBtn">连接USB</button>
         <button id="enableBtn">使能电机</button>
         <button id="disableBtn">失能电机</button>
         <button id="zeroBtn">设置零点</button>
         <button id="setIDBtn">设置ID</button>
     </div>
-    <div class="flex-container">
-        <select id="channel">
-            <option value="1">CAN通道1</option>
-            <option value="2">CAN通道2</option>
-        </select>
-        <textarea id="idInput" placeholder="要控制的电机ID,新电机默认为127"></textarea>
-        <textarea id="targetIDInput" placeholder="输入想要改成的ID，设置ID时使用"></textarea>
-    </div>
-    <div class="flex-container">
+    <select id="channel">
+        <option value="1">CAN通道1</option>
+        <option value="2">CAN通道2</option>
+    </select>
+    <textarea id="idInput" placeholder="要控制的电机ID,新电机默认为127"></textarea>
+
+    <textarea id="targetIDInput" placeholder="输入想要改成的ID，设置ID时使用"></textarea>
+
+
+    <div>
         <p>电机MIT控制数据 </p>
         <select id="motor">
             <option value="4">RS04</option>
+            <option value="127">小米cybergear</option>
             <option value="0">RS00</option>
             <option value="1">RS01</option>
             <option value="2">RS02</option>
@@ -119,22 +221,21 @@
             <option value="5">RS05</option>
             <option value="6">RS06</option>
         </select>
-        <button id="sendBtn">发送控制数据</button>
+
     </div>
-    <div class="flex-container">
-        <textarea id="posInput" placeholder="电机位置，建议0.0" value="0.0"></textarea>
-        <textarea id="velInput" placeholder="电机速度，建议2.0" value="2.0"></textarea>
-        <textarea id="torInput" placeholder="电机力矩,建议 0.0" value="0.0"></textarea>
-        <textarea id="kpInput" placeholder="电机KP，建议 0.0" value="0.0"></textarea>
-        <textarea id="kdInput" placeholder="电机KD，建议 40.0" value="40.0"></textarea>
-    </div>
+    <textarea id="posInput" placeholder="电机位置，建议0.0" value="0.0"></textarea>
+    <textarea id="velInput" placeholder="电机速度，建议2.0" value="2.0"></textarea>
+    <textarea id="torInput" placeholder="电机力矩,建议 0.0" value="0.0"></textarea>
+    <textarea id="kpInput" placeholder="电机KP，建议 0.0" value="0.0"></textarea>
+    <textarea id="kdInput" placeholder="电机KD，建议 40.0" value="40.0"></textarea>
     <div id="config-display" class="mt-6 bg-white p-4 rounded-lg shadow-sm overflow-x-auto">
         <!-- 配置参数将通过JavaScript动态填充 -->
     </div>
+    <button id="sendBtn">发送控制数据</button>
     <div>
         <p>电机状态数据</p>
         <textarea id="velState" placeholder="0.0"
-            style="height: 50px;width: 900px; border: 1px solid #ccc; overflow-y: auto; margin-top: 10px;"></textarea>
+            style="height: 100px; width: 100%; border: 1px solid #ccc; overflow-y: auto; margin-top: 10px;"></textarea>
     </div>
     <div id="logArea" style="height: 200px; border: 1px solid #ccc; overflow-y: auto; margin-top: 10px;"></div>
     <div>
@@ -171,7 +272,7 @@
             0x74, 0x2a, 0xc8, 0x96, 0x15, 0x4b, 0xa9, 0xf7, 0xb6, 0xe8, 0x0a, 0x54, 0xd7, 0x89, 0x6b, 0x35
         ];
 
-        let serialPort = null;
+        let usbDevice = null;
         let isHexMode = false;
         const connectBtn = document.getElementById('connectBtn');
         const sendBtn = document.getElementById('sendBtn');
@@ -207,6 +308,18 @@
                 KD_MAX: 100.0,
                 T_MIN: -120.0,
                 T_MAX: 120.0
+            },
+            '127': {  // 小米cybergear
+                P_MIN: -12.5,
+                P_MAX: 12.5,
+                V_MIN: -30.0,
+                V_MAX: 30.0,
+                KP_MIN: 0.0,
+                KP_MAX: 500.0,
+                KD_MIN: 0.0,
+                KD_MAX: 5.0,
+                T_MIN: -12.0,
+                T_MAX: 12.0
             },
             '0': {  // RS00
                 P_MIN: -12.57,
@@ -340,27 +453,35 @@
             updateParams(this.value);
         });
 
-        // 连接串口
+        // 连接USB
         connectBtn.addEventListener('click', async () => {
             try {
-                if (serialPort && serialPort.writable) {
-                    log('已连接到串口，无需重复连接');
+                if (usbDevice && usbDevice.opened) {
+                    log('已连接到USB设备，无需重复连接');
                     return;
                 }
 
-                // 请求选择串口设备
-                serialPort = await navigator.serial.requestPort();
-                // 配置串口参数（根据设备需求调整）
-                await serialPort.open({
-                    baudRate: 9600,       // 波特率
-                    dataBits: 8,          // 数据位
-                    parity: 'none',       // 校验位
-                    stopBits: 1,          // 停止位
-                    flowControl: 'none'   // 流控制
-                });
-                log('成功连接到串口设备');
+                // 请求选择USB设备
+                const filters = [];
 
-                // 开始接收数据（改进版）
+                usbDevice = await navigator.usb.requestDevice({ filters });
+
+                // 连接到设备
+                await usbDevice.open();
+
+                // 设置配置
+                await usbDevice.selectConfiguration(1);
+
+                // 声明接口
+                await usbDevice.claimInterface(1);
+
+                // 清除端点的任何挂起数据
+                await usbDevice.clearHalt('out', 1);
+                await usbDevice.clearHalt('in', 1);
+
+                log('成功连接到USB设备');
+
+                // 开始接收数据
                 startReceivingData();
 
             } catch (error) {
@@ -368,29 +489,24 @@
             }
         });
 
-        // 单独的数据接收函数，使用异步迭代器处理
+        // 单独的数据接收函数
         async function startReceivingData() {
-            if (!serialPort || !serialPort.readable) return;
-
-            const reader = serialPort.readable.getReader();
+            if (!usbDevice || !usbDevice.opened) return;
 
             try {
-                while (true) {
-                    const { value, done } = await reader.read();
-                    if (done) {
-                        log('数据接收完成，连接已断开');
-                        break;
-                    }
+                while (usbDevice.opened) {
+                    // 从端点1读取数据
+                    const result = await usbDevice.transferIn(1, 64);
 
-                    // 处理接收到的数据
-                    processReceivedData(value);
+                    if (result.status === 'ok') {
+                        // 处理接收到的数据
+                        processReceivedData(result.data.buffer);
+                    }
                 }
             } catch (error) {
                 if (error.name !== 'AbortError') {
                     log(`接收数据时出错: ${error.message}`);
                 }
-            } finally {
-                reader.releaseLock();
             }
         }
 
@@ -433,8 +549,8 @@
 
         // 发送数据
         sendBtn.addEventListener('click', async () => {
-            if (!serialPort || !serialPort.writable) {
-                log('请先连接串口');
+            if (!usbDevice || !usbDevice.opened) {
+                log('请先连接USB设备');
                 return;
             }
 
@@ -477,10 +593,15 @@
                 validateInputRange(kd, KD_MIN, KD_MAX, "KD");
 
                 const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
-                const writer = serialPort.writable.getWriter();
-                await writer.write(crcDataBuffer);
-                writer.releaseLock();
-                log(`发送控制帧: ${bytesToHexString(crcDataBuffer)}`);
+
+                // 通过USB发送数据
+                const result = await usbDevice.transferOut(1, crcDataBuffer);
+
+                if (result.status === 'ok') {
+                    log(`发送控制帧: ${bytesToHexString(crcDataBuffer)}`);
+                } else {
+                    log(`发送失败，状态: ${result.status}`);
+                }
             } catch (error) {
                 log(`发送失败: ${error.message}`);
             }
@@ -489,8 +610,8 @@
         // 创建统一的按钮处理函数
         function createButtonHandler(handlerFunction, buttonName) {
             return async () => {
-                if (!serialPort || !serialPort.writable) {
-                    log('请先连接串口');
+                if (!usbDevice || !usbDevice.opened) {
+                    log('请先连接USB设备');
                     return;
                 }
 
@@ -522,9 +643,13 @@
                 0x00, 0x00, 0x00, 0x00,
             ]);
             const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
-            const writer = serialPort.writable.getWriter();
-            await writer.write(crcDataBuffer);
-            writer.releaseLock();
+
+            // 通过USB发送数据
+            const result = await usbDevice.transferOut(1, crcDataBuffer);
+
+            if (result.status !== 'ok') {
+                throw new Error(`USB传输失败，状态: ${result.status}`);
+            }
         }, "使能"));
 
         disableBtn.addEventListener('click', createButtonHandler(async () => {
@@ -545,9 +670,13 @@
                 0x00, 0x00, 0x00, 0x00,
             ]);
             const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
-            const writer = serialPort.writable.getWriter();
-            await writer.write(crcDataBuffer);
-            writer.releaseLock();
+
+            // 通过USB发送数据
+            const result = await usbDevice.transferOut(1, crcDataBuffer);
+
+            if (result.status !== 'ok') {
+                throw new Error(`USB传输失败，状态: ${result.status}`);
+            }
         }, "失能"));
 
         zeroBtn.addEventListener('click', createButtonHandler(async () => {
@@ -568,9 +697,13 @@
                 0x00, 0x00, 0x00, 0x00,
             ]);
             const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
-            const writer = serialPort.writable.getWriter();
-            await writer.write(crcDataBuffer);
-            writer.releaseLock();
+
+            // 通过USB发送数据
+            const result = await usbDevice.transferOut(1, crcDataBuffer);
+
+            if (result.status !== 'ok') {
+                throw new Error(`USB传输失败，状态: ${result.status}`);
+            }
         }, "设置零点"));
 
         setIDBtn.addEventListener('click', createButtonHandler(async () => {
@@ -590,9 +723,13 @@
                 0x00, 0x00, 0x00, 0x00,
             ]);
             const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
-            const writer = serialPort.writable.getWriter();
-            await writer.write(crcDataBuffer);
-            writer.releaseLock();
+
+            // 通过USB发送数据
+            const result = await usbDevice.transferOut(1, crcDataBuffer);
+
+            if (result.status !== 'ok') {
+                throw new Error(`USB传输失败，状态: ${result.status}`);
+            }
         }, "设置ID"));
 
         // 日志输出

@@ -213,6 +213,7 @@
         <p>电机MIT控制数据 </p>
         <select id="motor">
             <option value="4">RS04</option>
+            <option value="127">小米cybergear</option>
             <option value="0">RS00</option>
             <option value="1">RS01</option>
             <option value="2">RS02</option>
@@ -307,6 +308,18 @@
                 KD_MAX: 100.0,
                 T_MIN: -120.0,
                 T_MAX: 120.0
+            },
+            '127': {  // 小米cybergear
+                P_MIN: -12.5,
+                P_MAX: 12.5,
+                V_MIN: -30.0,
+                V_MAX: 30.0,
+                KP_MIN: 0.0,
+                KP_MAX: 500.0,
+                KD_MIN: 0.0,
+                KD_MAX: 5.0,
+                T_MIN: -12.0,
+                T_MAX: 12.0
             },
             '0': {  // RS00
                 P_MIN: -12.57,
