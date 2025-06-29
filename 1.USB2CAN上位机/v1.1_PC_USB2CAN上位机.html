@@ -575,7 +575,7 @@
             const value = new Uint8Array(buffer);
 
             // 简单的帧验证 - 假设CAN帧至少有一定长度
-            if (value.length < 16) {
+            if (value.length < 6) {
                 log(`接收到不完整的帧: ${bytesToHexString(value)}`);
                 return;
             }
