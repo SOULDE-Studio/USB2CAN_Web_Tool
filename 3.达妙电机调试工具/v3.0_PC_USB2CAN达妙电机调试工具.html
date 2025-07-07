@@ -100,8 +100,9 @@
         <button id="zeroBtn">设置零点</button>
         <button id="setIDBtn">设置电机ID</button>
         <button id="setMasterIDBtn">设置MaterID</button>
-        <button id="saveconfigBtn">存储电机参数</button>
         <button id="readconfigBtn">读取电机参数</button>
+        <button id="writeconfigBtn">写入电机参数</button>
+        <button id="saveconfigBtn">存储电机参数</button>
     </div>
     <div class="flex-container">
         <select id="channel">
@@ -111,7 +112,8 @@
         <textarea id="idInput" placeholder="要控制的电机ID,新电机默认为0"></textarea>
         <textarea id="targetIDInput" placeholder="输入想要改成的电机ID，设置ID时使用，设置完之后要存储电机数据"></textarea>
         <textarea id="targetMasterIDInput" placeholder="输入想要改成的MasterID，设置ID时使用，设置完之后要存储电机数据"></textarea>
-        <textarea id="configIDInput" placeholder="输入想要读取的寄存器地址"></textarea>
+        <textarea id="configIDInput" placeholder="输入想要读取或者写入的寄存器地址，10进制"></textarea>
+        <textarea id="configvalueInput" placeholder="输入想要写入的值"></textarea>
     </div>
     <div class="flex-container">
         <p>电机MIT控制数据 </p>
@@ -138,18 +140,19 @@
         <textarea id="kpInput" placeholder="电机KP,参考下方参数范围" value="0.0"></textarea>
         <textarea id="kdInput" placeholder="电机KD，参考下方参数范围" value="0.0"></textarea>
     </div>
+    
+    <div>
+        <p>电机状态数据（仅在发送使能、失能、mit控制命令时准确）</p>
+        <textarea id="velState" placeholder="0.0"
+            style="height: 50px;width: 1500px; border: 1px solid #ccc; overflow-y: auto; margin-top: 10px;"></textarea>
+    </div>
+    <div id="logArea" style="height: 100px; border: 1px solid #ccc; overflow-y: auto; margin-top: 10px;"></div>
     <div id="config-display" class="mt-6 bg-white p-4 rounded-lg shadow-sm overflow-x-auto">
         <!-- 配置参数将通过JavaScript动态填充 -->
     </div>
     <div>
-        <p>电机状态数据</p>
-        <textarea id="velState" placeholder="0.0"
-            style="height: 50px;width: 900px; border: 1px solid #ccc; overflow-y: auto; margin-top: 10px;"></textarea>
-    </div>
-    <div id="logArea" style="height: 200px; border: 1px solid #ccc; overflow-y: auto; margin-top: 10px;"></div>
-    <div>
         <p>若需自己编程控制电机可参考下面的开源库：</p>
-        <a href="https://gitee.com/ding-lab/USB2CAN-Demo-Lingzu">Linux下达妙电机控制案例开源链接    </a>
+        <a href="https://gitee.com/ding-lab/USB2CAN-Demo-DM">Linux下达妙电机控制案例开源链接    </a>
     </div>
     <h3>本工具需要与专用USB2两路CAN模块配套使用，相关链接：</h3>
     <div>
@@ -157,7 +160,7 @@
         <p>---</p>
         <a href="https://pan.baidu.com/s/1EwYDNQ0jMKyTSvJEEcj6aw?pwd=10ob">模块说明书以及SDK下载地址</a>
         <p>---</p>
-        <a href="https://e.tb.cn/h.TAnAHUN38QORoTB?tk=zZ92eKjIaTxHU591">达妙电机购买地址</a>
+        <a href="https://e.tb.cn/h.64misbVFgC99Sp6?tk=eKKrex5NSR0CZ193">达妙电机购买地址</a>
     </div>
 
     <script>
@@ -192,6 +195,7 @@
         const setMasterIDBtn = document.getElementById('setMasterIDBtn');
         const readconfigBtn = document.getElementById('readconfigBtn');
         const saveconfigBtn = document.getElementById('saveconfigBtn');    
+        const writeconfigBtn = document.getElementById('writeconfigBtn'); 
 
         const idInput = document.getElementById('idInput');
         const channel = document.getElementById('channel');
@@ -203,6 +207,7 @@
         const targetIDInput = document.getElementById('targetIDInput');
         const targetMasterIDInput = document.getElementById('targetMasterIDInput');
         const configIDInput = document.getElementById('configIDInput');
+        const configvalueInput = document.getElementById('configvalueInput');
 
         const velState = document.getElementById('velState');
         const logArea = document.getElementById('logArea');
@@ -408,7 +413,7 @@
         let T_MAX = 200.0;
 
         function updateParams(value) {
-            const config = motorConfigs[value] || motorConfigs['4']; // 默认使用RS04的配置
+            const config = motorConfigs[value] || motorConfigs['DM10010L']; // 默认使用DM10010L的配置
 
             // 更新参数值
             P_MIN = config.P_MIN;
@@ -515,8 +520,7 @@
 
                 // 更新UI - 使用requestAnimationFrame确保UI响应性
                 requestAnimationFrame(() => {
-                    velState.innerText = `状态ERR: ${errorCode.toFixed(0)} 当前电机MasterID:${MasterID.toFixed(0)} 当前电机ID:${motorID.toFixed(0)} 位置: ${current_position_f.toFixed(4)}rad 速度: ${current_speed_f.toFixed(4)}rad/s  力矩: ${current_torque_f.toFixed(4)}Nm 
-                    MOS温度: ${current_temp_MOS.toFixed(2)}摄氏度 Rotor温度: ${current_temp_Rotor.toFixed(2)}摄氏度`  ;
+                    velState.innerText = `状态ERR: ${errorCode.toFixed(0)}  当前电机ID:${motorID.toFixed(0)} 电机MasterID(10进制):${MasterID.toFixed(0)} 位置: ${current_position_f.toFixed(4)}rad 速度: ${current_speed_f.toFixed(4)}rad/s  力矩: ${current_torque_f.toFixed(4)}Nm MOS温度: ${current_temp_MOS.toFixed(2)}摄氏度 Rotor温度: ${current_temp_Rotor.toFixed(2)}摄氏度`  ;
                 });
 
 
@@ -528,11 +532,11 @@
                 //打印读取的数据
                 if (value[10] == 0x33) {
                     const data_rx = (value[12]) | (value[13]<<8| (value[14]<<16)|(value[15]<<24));
-                    log(`读取的数据为: ${data_rx}`);
+                    log(`RID: ${value[11]} 读取的数据为（10进制）: ${data_rx}`);
                 }
                 else if (value[10] == 0x55) {
                     const data_rx = (value[12]) | (value[13]<<8| (value[14]<<16)|(value[15]<<24));
-                    log(`写入的数据为: ${data_rx}`);
+                    log(`RID: ${value[11]} 写入的数据为（10进制）: ${data_rx}`);
                 }
                 else if (value[10] == 0xAA) {
                     if (value[11] == 0x01) {
@@ -692,7 +696,7 @@
                 0x08,// 数据长度
 
                 canID & 0xff,
-                (configID >> 8) & 0xff, 
+                (canID >> 8) & 0xff, 
                 0x55, 
                 0x08,//接收 ID [0,0x7FF]
                 data & 0xff,           // 第一个字节
@@ -724,7 +728,7 @@
                 0x08,// 数据长度
 
                 canID & 0xff,
-                (configID >> 8) & 0xff, 
+                (canID >> 8) & 0xff, 
                 0x55, 
                 0x07,
                 data & 0xff,           // 第一个字节
@@ -738,9 +742,11 @@
             writer.releaseLock();
         }, "设置MasterID"));
 
+
         readconfigBtn.addEventListener('click', createButtonHandler(async () => {
             const configID = 0x7ff;
             const canID = idInput.value;
+            const RID = configIDInput.value;
             const dataBuffer = new Uint8Array([
                 0xA8,// 帧头
                 channel.value,// 通道号
@@ -752,9 +758,9 @@
                 0x08,// 数据长度
 
                 canID & 0xff,
-                (configID >> 8) & 0xff, 
+                (canID >> 8) & 0xff, 
                 0x33, 
-                0x08,    //接收 ID [0,0x7FF]
+                RID,    
                 0x00,    // 第一个字节
                 0x00,    // 第二个字节
                 0x00,    // 第三个字节
@@ -765,8 +771,42 @@
             await writer.write(crcDataBuffer);
             writer.releaseLock();
         }, "读取电机参数"));
-        
-        saveconfigBt.addEventListener('click', createButtonHandler(async () => {
+
+        writeconfigBtn.addEventListener('click', createButtonHandler(async () => {
+            const configID = 0x7ff;
+            const canID = idInput.value;
+            const RID = configIDInput.value;
+            const data = configvalueInput.value;
+
+            const dataBuffer = new Uint8Array([
+                0xA8,// 帧头
+                channel.value,// 通道号
+                configID & 0xff,           // 第一个字节
+                (configID >> 8) & 0xff,    // 第二个字节
+                (configID >> 16) & 0xff,   // 第三个字节
+                (configID >> 24) & 0xff,   // 第四个字节
+                0x00, //标准帧
+                0x08,// 数据长度
+
+                canID & 0xff,
+                (canID >> 8) & 0xff, 
+                0x55, 
+                RID,
+                data & 0xff,           // 第一个字节
+                (data >> 8) & 0xff,    // 第二个字节
+                (data >> 16) & 0xff,   // 第三个字节
+                (data >> 24) & 0xff,   // 第四个字节
+            ]);
+             
+            const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
+            const writer = serialPort.writable.getWriter();
+            await writer.write(crcDataBuffer);
+            log(`写入电机参数: ${bytesToHexString(crcDataBuffer)}`);
+            writer.releaseLock();
+        }, "写入电机参数"));
+
+     
+        saveconfigBtn.addEventListener('click', createButtonHandler(async () => {
             const configID = 0x7ff;
             const canID = idInput.value;
             const dataBuffer = new Uint8Array([
@@ -780,7 +820,7 @@
                 0x08,// 数据长度
 
                 canID & 0xff,
-                (configID >> 8) & 0xff, 
+                (canID >> 8) & 0xff, 
                 0xAA, 
                 0x08,    //接收 ID [0,0x7FF]
                 0x00,    // 第一个字节
@@ -794,6 +834,7 @@
             writer.releaseLock();
         }, "存储电机参数"));
 
+  
 
         // 日志输出
         function log(message) {
