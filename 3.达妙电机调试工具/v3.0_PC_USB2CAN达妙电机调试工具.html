@@ -144,7 +144,7 @@
     <div>
         <p>电机状态数据（仅在发送使能、失能、mit控制命令时准确）</p>
         <textarea id="velState" placeholder="0.0"
-            style="height: 50px;width: 1500px; border: 1px solid #ccc; overflow-y: auto; margin-top: 10px;"></textarea>
+            style="height: 50px;width:100%; border: 1px solid #ccc; overflow-y: auto; margin-top: 10px;"></textarea>
     </div>
     <div id="logArea" style="height: 100px; border: 1px solid #ccc; overflow-y: auto; margin-top: 10px;"></div>
     <div id="config-display" class="mt-6 bg-white p-4 rounded-lg shadow-sm overflow-x-auto">
@@ -540,7 +540,7 @@
                 }
                 else if (value[10] == 0xAA) {
                     if (value[11] == 0x01) {
-                         log(`参数存储成功`);
+                         log(`参数存储成功！！！！！！！！！！！！！！！！！`);
                     }
                 }
             } catch (error) {
@@ -812,17 +812,19 @@
             const dataBuffer = new Uint8Array([
                 0xA8,// 帧头
                 channel.value,// 通道号
+                
                 configID & 0xff,           // 第一个字节
                 (configID >> 8) & 0xff,    // 第二个字节
                 (configID >> 16) & 0xff,   // 第三个字节
                 (configID >> 24) & 0xff,   // 第四个字节
+                
                 0x00, //标准帧
                 0x08,// 数据长度
 
                 canID & 0xff,
                 (canID >> 8) & 0xff, 
                 0xAA, 
-                0x08,    //接收 ID [0,0x7FF]
+                0x00,    //接收 ID [0,0x7FF]
                 0x00,    // 第一个字节
                 0x00,    // 第二个字节
                 0x00,    // 第三个字节

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USB2CAN----灵足时代电机调试工具（手机版）</title>
+    <title>USB2CAN----达妙电机调试工具（手机版）</title>
     <style>
         /* 全局样式 */
         body {
@@ -179,7 +179,7 @@
 </head>
 
 <body>
-    <h3>USB2CAN----灵足时代电机调试工具（手机版，只支持edge浏览器）</h3>
+    <h3>USB2CAN----达妙电机调试工具（手机版，只支持edge浏览器）</h3>
     <details>
         <summary>【手机版网页工具操作须知】</summary>
         <ol>
@@ -193,54 +193,67 @@
                 之后在不断连的情况下便可以一直使用Web调用USB2CAN</li>
         </ol>
     </details>
-    <div class="flex">
-        <button id="connectBtn">连接USB</button>
+    <div class="flex-container">
+        <button id="connectBtn">连接串口</button>
         <button id="enableBtn">使能电机</button>
         <button id="disableBtn">失能电机</button>
         <button id="zeroBtn">设置零点</button>
-        <button id="setIDBtn">设置ID</button>
+        <button id="setIDBtn">设置电机ID</button>
+        <button id="setMasterIDBtn">设置MaterID</button>
+        <button id="readconfigBtn">读取电机参数</button>
+        <button id="writeconfigBtn">写入电机参数</button>
+        <button id="saveconfigBtn">存储电机参数</button>
     </div>
-    <select id="channel">
-        <option value="1">CAN通道1</option>
-        <option value="2">CAN通道2</option>
-    </select>
-    <textarea id="idInput" placeholder="要控制的电机ID,新电机默认为127"></textarea>
-
-    <textarea id="targetIDInput" placeholder="输入想要改成的ID，设置ID时使用"></textarea>
-
-
+    <div class="flex-container">
+        <select id="channel">
+            <option value="1">CAN通道1</option>
+            <option value="2">CAN通道2</option>
+        </select>
+        <textarea id="idInput" placeholder="要控制的电机ID,新电机默认为0"></textarea>
+        <textarea id="targetIDInput" placeholder="输入想要改成的电机ID，设置ID时使用，设置完之后要存储电机数据"></textarea>
+        <textarea id="targetMasterIDInput" placeholder="输入想要改成的MasterID，设置ID时使用，设置完之后要存储电机数据"></textarea>
+        <textarea id="configIDInput" placeholder="输入想要读取或者写入的寄存器地址，10进制"></textarea>
+        <textarea id="configvalueInput" placeholder="输入想要写入寄存器的值"></textarea>
+    </div>
     <div>
+        <p>电机状态数据（仅在发送使能、失能、mit控制命令时准确）</p>
+        <textarea id="velState" placeholder="0.0"
+            style="height: 50px;width: 100%; border: 1px solid #ccc; overflow-y: auto; margin-top: 10px;"></textarea>
+    </div>
+    <div id="logArea" style="height: 100px; border: 1px solid #ccc; overflow-y: auto; margin-top: 10px;"></div>
+    <div class="flex-container">
         <p>电机MIT控制数据 </p>
         <select id="motor">
-            <option value="4">RS04</option>
-            <option value="127">小米cybergear</option>
-            <option value="0">RS00</option>
-            <option value="1">RS01</option>
-            <option value="2">RS02</option>
-            <option value="3">RS03</option>
-            <option value="5">RS05</option>
-            <option value="6">RS06</option>
+            <option value="DM10010L">DM10010L</option>
+            <option value="DM4310">DM4310</option>
+            <option value="4310_48V">DM4310_48V</option>
+            <option value="DM4340">DM4340</option>
+            <option value="DM4340_48V">DM4340_48V</option>
+            <option value="DM6006">DM6006</option>
+            <option value="DM8006">DM8006</option>
+            <option value="DM8009">DM8009</option>
+            <option value="DM10010">DM10010</option>
+            <option value="DMH3510">DMH3510</option>
+            <option value="DMH6215">DMH6215</option>
+            <option value="DMG6220">DMG6220</option>
         </select>
-
+        <button id="sendBtn">发送控制数据</button>
     </div>
-    <textarea id="posInput" placeholder="电机位置P，rad，参考下方参数范围" value="0.0"></textarea>
-    <textarea id="velInput" placeholder="电机速度V，rad/s，参考下方参数范围" value="0.0"></textarea>
-    <textarea id="torInput" placeholder="电机力矩T，Nm，参考下方参数范围" value="0.0"></textarea>
-    <textarea id="kpInput" placeholder="电机KP，参考下方参数范围" value="0.0"></textarea>
-    <textarea id="kdInput" placeholder="电机KD，参考下方参数范围" value="0.0"></textarea>
+    <div class="flex-container">
+        <textarea id="posInput" placeholder="电机位置P，rad，参考下方参数范围" value="0.0"></textarea>
+        <textarea id="velInput" placeholder="电机速度V，rad/s，参考下方参数范围" value="0.0"></textarea>
+        <textarea id="torInput" placeholder="电机力矩T，Nm，参考下方参数范围" value="0.0"></textarea>
+        <textarea id="kpInput" placeholder="电机KP,参考下方参数范围" value="0.0"></textarea>
+        <textarea id="kdInput" placeholder="电机KD，参考下方参数范围" value="0.0"></textarea>
+    </div>
     <div id="config-display" class="mt-6 bg-white p-4 rounded-lg shadow-sm overflow-x-auto">
         <!-- 配置参数将通过JavaScript动态填充 -->
     </div>
-    <button id="sendBtn">发送控制数据</button>
-    <div>
-        <p>电机状态数据</p>
-        <textarea id="velState" placeholder="0.0"
-            style="height: 100px; width: 100%; border: 1px solid #ccc; overflow-y: auto; margin-top: 10px;"></textarea>
-    </div>
-    <div id="logArea" style="height: 200px; border: 1px solid #ccc; overflow-y: auto; margin-top: 10px;"></div>
+   
+
     <div>
         <p>若需自己编程控制电机可参考下面的开源库：</p>
-        <a href="https://gitee.com/ding-lab/USB2CAN-Demo-Lingzu">Linux下灵足时代电机控制案例开源链接    </a>
+        <a href="https://gitee.com/ding-lab/USB2CAN-Demo-DM">Linux下达妙电机控制案例开源链接    </a>
     </div>
     <h3>本工具需要与专用USB2两路CAN模块配套使用，相关链接：</h3>
     <div>
@@ -248,7 +261,7 @@
         <p>---</p>
         <a href="https://pan.baidu.com/s/1EwYDNQ0jMKyTSvJEEcj6aw?pwd=10ob">模块说明书以及SDK下载地址</a>
         <p>---</p>
-        <a href="https://e.tb.cn/h.TAnAHUN38QORoTB?tk=zZ92eKjIaTxHU591">灵足时代电机购买地址</a>
+        <a href="https://e.tb.cn/h.64misbVFgC99Sp6?tk=eKKrex5NSR0CZ193">达妙电机购买地址</a>
     </div>
 
     <script>
@@ -280,6 +293,11 @@
         const disableBtn = document.getElementById('disableBtn');
         const zeroBtn = document.getElementById('zeroBtn');
         const setIDBtn = document.getElementById('setIDBtn');
+        const setMasterIDBtn = document.getElementById('setMasterIDBtn');
+        const readconfigBtn = document.getElementById('readconfigBtn');
+        const saveconfigBtn = document.getElementById('saveconfigBtn');    
+        const writeconfigBtn = document.getElementById('writeconfigBtn'); 
+
         const idInput = document.getElementById('idInput');
         const channel = document.getElementById('channel');
         const posInput = document.getElementById('posInput');
@@ -288,6 +306,10 @@
         const kpInput = document.getElementById('kpInput');
         const kdInput = document.getElementById('kdInput');
         const targetIDInput = document.getElementById('targetIDInput');
+        const targetMasterIDInput = document.getElementById('targetMasterIDInput');
+        const configIDInput = document.getElementById('configIDInput');
+        const configvalueInput = document.getElementById('configvalueInput');
+
         const velState = document.getElementById('velState');
         const logArea = document.getElementById('logArea');
 
@@ -296,20 +318,21 @@
         const configDisplay = document.getElementById('config-display');
 
         // 定义各电机型号对应的参数配置对象
+        //达妙电机参数    {P, V, T}
+				// {12.5, 30, 10 }, // DM4310
+				// {12.5, 50, 10 }, // DM4310_48V
+				// {12.5, 8, 28 },  // DM4340
+				// {12.5, 10, 28 }, // DM4340_48V
+				// {12.5, 45, 20 }, // DM6006
+				// {12.5, 45, 40 }, // DM8006
+				// {12.5, 45, 54 }, // DM8009
+				// {12.5,25,  200}, // DM10010L
+				// {12.5,20, 200},  // DM10010
+				// {12.5,280,1},    // DMH3510
+				// {12.5,45,10},    // DMH6215
+				// {12.5,45,10}     // DMG6220
         const motorConfigs = {
-            '4': {  // RS04
-                P_MIN: -12.57,
-                P_MAX: 12.57,
-                V_MIN: -15.0,
-                V_MAX: 15.0,
-                KP_MIN: 0.0,
-                KP_MAX: 5000.0,
-                KD_MIN: 0.0,
-                KD_MAX: 100.0,
-                T_MIN: -120.0,
-                T_MAX: 120.0
-            },
-            '127': {  // 小米cybergear
+            'DM4310': {  // DM4310
                 P_MIN: -12.5,
                 P_MAX: 12.5,
                 V_MIN: -30.0,
@@ -318,81 +341,142 @@
                 KP_MAX: 500.0,
                 KD_MIN: 0.0,
                 KD_MAX: 5.0,
-                T_MIN: -12.0,
-                T_MAX: 12.0
+                T_MIN: -10.0,
+                T_MAX: 10.0
             },
-            '0': {  // RS00
-                P_MIN: -12.57,
-                P_MAX: 12.57,
-                V_MIN: -33.0,
-                V_MAX: 33.0,
+            'DM4310_48V': {  // DM4310_48V
+                P_MIN: -12.5,
+                P_MAX: 12.5,
+                V_MIN: -50.0,
+                V_MAX: 50.0,
                 KP_MIN: 0.0,
                 KP_MAX: 500.0,
                 KD_MIN: 0.0,
                 KD_MAX: 5.0,
-                T_MIN: -14.0,
-                T_MAX: 14.0
+                T_MIN: -10.0,
+                T_MAX: 10.0
             },
-            '1': {  // RS01
-                P_MIN: -12.57,
-                P_MAX: 12.57,
-                V_MIN: -44.0,
-                V_MAX: 44.0,
+            'DM4340': {  // DM4340
+                P_MIN: -12.5,
+                P_MAX: 12.5,
+                V_MIN: -8.0,
+                V_MAX: 8.0,
                 KP_MIN: 0.0,
                 KP_MAX: 500.0,
                 KD_MIN: 0.0,
                 KD_MAX: 5.0,
-                T_MIN: -17.0,
-                T_MAX: 17.0
+                T_MIN: -28.0,
+                T_MAX: 28.0
             },
-            '2': {  // RS02
-                P_MIN: -12.57,
-                P_MAX: 12.57,
-                V_MIN: -44.0,
-                V_MAX: 44.0,
+            'DM4340_48V': {  // DM4340_48V
+                P_MIN: -12.5,
+                P_MAX: 12.5,
+                V_MIN: -10.0,
+                V_MAX: 10.0,
                 KP_MIN: 0.0,
                 KP_MAX: 500.0,
                 KD_MIN: 0.0,
                 KD_MAX: 5.0,
-                T_MIN: -17.0,
-                T_MAX: 17.0
+                T_MIN: -28.0,
+                T_MAX: 28.0
             },
-            '3': {  // RS03
-                P_MIN: -12.57,
-                P_MAX: 12.57,
+            'DM6006': {  // DM6006
+                P_MIN: -12.5,
+                P_MAX: 12.5,
+                V_MIN: -45.0,
+                V_MAX: 45.0,
+                KP_MIN: 0.0,
+                KP_MAX: 500.0,
+                KD_MIN: 0.0,
+                KD_MAX: 5.0,
+                T_MIN: -20.0,
+                T_MAX: 20.0
+            },
+            'DM8006': {  // DM8006
+                P_MIN: -12.5,
+                P_MAX: 12.5,
+                V_MIN: -45.0,
+                V_MAX: 45.0,
+                KP_MIN: 0.0,
+                KP_MAX: 500.0,
+                KD_MIN: 0.0,
+                KD_MAX: 5.0,
+                T_MIN: -40.0,
+                T_MAX: 40.0
+            }, 
+            'DM8009': {  // DM8009
+                P_MIN: -12.5,
+                P_MAX: 12.5,
+                V_MIN: -45.0,
+                V_MAX: 45.0,
+                KP_MIN: 0.0,
+                KP_MAX: 500.0,
+                KD_MIN: 0.0,
+                KD_MAX: 5.0,
+                T_MIN: -54.0,
+                T_MAX: 54.0
+            },
+            'DM10010L': {  // DM10010L
+                P_MIN: -12.5,
+                P_MAX: 12.5,
+                V_MIN: -25.0,
+                V_MAX: 25.0,
+                KP_MIN: 0.0,
+                KP_MAX: 500.0,
+                KD_MIN: 0.0,
+                KD_MAX: 5.0,
+                T_MIN: -200.0,
+                T_MAX: 200.0
+            },
+            'DM10010': {  // DM10010
+                P_MIN: -12.5,
+                P_MAX: 12.5,
                 V_MIN: -20.0,
                 V_MAX: 20.0,
                 KP_MIN: 0.0,
-                KP_MAX: 5000.0,
+                KP_MAX: 500.0,
                 KD_MIN: 0.0,
-                KD_MAX: 100.0,
-                T_MIN: -60.0,
-                T_MAX: 60.0
+                KD_MAX: 5.0,
+                T_MIN: -200.0,
+                T_MAX: 200.0
             },
-            '5': {  // RS05
-                P_MIN: -12.57,
-                P_MAX: 12.57,
-                V_MIN: -50.0,
-                V_MAX: 50.0,
+            'DMH3510': {  // DMH3510
+                P_MIN: -12.5,
+                P_MAX: 12.5,
+                V_MIN: -280.0,
+                V_MAX: 280.0,
                 KP_MIN: 0.0,
                 KP_MAX: 500.0,
                 KD_MIN: 0.0,
                 KD_MAX: 5.0,
-                T_MIN: -5.5,
-                T_MAX: 5.5
+                T_MIN: -1.0,
+                T_MAX: 1.0
             },
-            '6': {  // RS06
-                P_MIN: -12.57,
-                P_MAX: 12.57,
-                V_MIN: -50.0,
-                V_MAX: 50.0,
+            'DMH6215': {  // DMH6215
+                P_MIN: -12.5,
+                P_MAX: 12.5,
+                V_MIN: -45.0,
+                V_MAX: 45.0,
                 KP_MIN: 0.0,
-                KP_MAX: 5000.0,
+                KP_MAX: 500.0,
                 KD_MIN: 0.0,
-                KD_MAX: 100.0,
-                T_MIN: -36.0,
-                T_MAX: 36.0
-            }
+                KD_MAX: 5.0,
+                T_MIN: -10.0,
+                T_MAX: 10.0
+            },
+            'DMG6220': {  // DMG6220
+                P_MIN: -12.5,
+                P_MAX: 12.5,
+                V_MIN: -45.0,
+                V_MAX: 45.0,
+                KP_MIN: 0.0,
+                KP_MAX: 500.0,
+                KD_MIN: 0.0,
+                KD_MAX: 5.0,
+                T_MIN: -10.0,
+                T_MAX: 10.0
+            },
+
         };
 
         // 更新配置显示 - 横向排列版本
@@ -515,32 +599,54 @@
             const value = new Uint8Array(buffer);
 
             // 简单的帧验证 - 假设CAN帧至少有一定长度
-            if (value.length < 16) {
+            if (value.length < 8) {
                 log(`接收到不完整的帧: ${bytesToHexString(value)}`);
                 return;
             }
 
+
             try {
-                const motorID = value[3];
-                const current_position = (value[8] << 8) | (value[9]);
-                const current_speed = (value[10] << 8) | (value[11]);
-                const current_torque = (value[12] << 8) | (value[13]);
-                const current_temp = (value[14] << 8) | (value[15]);
+                const MasterID = value[2]| (value[3] << 8)| (value[4] << 16) | (value[5] << 24);
+                const motorID = value[8]& 0x0f;
+                const errorCode = (value[8] >> 4)& 0x0f;
+
+                const current_position = (value[9] << 8) | (value[10]);
+                const current_speed = (value[11] << 4) | (value[12]>>4);
+                const current_torque = ((value[12]& 0x0f)<<8) | (value[13]);
+                const current_temp_MOS = (value[14]);
+                const current_temp_Rotor = (value[15]);
 
                 // 转换
                 const current_position_f = uint_to_float(current_position, P_MIN, P_MAX, 16);
-                const current_speed_f = uint_to_float(current_speed, V_MIN, V_MAX, 16);
-                const current_torque_f = uint_to_float(current_torque, T_MIN, T_MAX, 16);
-                const current_temp_f = current_temp / 10;
+                const current_speed_f = uint_to_float(current_speed, V_MIN, V_MAX, 12);
+                const current_torque_f = uint_to_float(current_torque, T_MIN, T_MAX, 12);
+
 
                 // 更新UI - 使用requestAnimationFrame确保UI响应性
                 requestAnimationFrame(() => {
-                    velState.innerText = `当前电机ID:${motorID.toFixed(0)} 位置: ${current_position_f.toFixed(4)}rad 速度: ${current_speed_f.toFixed(4)}rad/s  力矩: ${current_torque_f.toFixed(4)}Nm 温度: ${current_temp_f.toFixed(2)}摄氏度`;
+                    velState.innerText = `状态ERR: ${errorCode.toFixed(0)}  当前电机ID:${motorID.toFixed(0)} 电机MasterID(10进制):${MasterID.toFixed(0)} 位置: ${current_position_f.toFixed(4)}rad 速度: ${current_speed_f.toFixed(4)}rad/s  力矩: ${current_torque_f.toFixed(4)}Nm MOS温度: ${current_temp_MOS.toFixed(2)}摄氏度 Rotor温度: ${current_temp_Rotor.toFixed(2)}摄氏度`  ;
                 });
+
+
 
                 // 转换为16进制显示
                 const hexStr = bytesToHexString(value);
                 log(`接收16进制: ${hexStr}`);
+
+                //打印读取的数据
+                if (value[10] == 0x33) {
+                    const data_rx = (value[12]) | (value[13]<<8| (value[14]<<16)|(value[15]<<24));
+                    log(`RID: ${value[11]} 读取的数据为（10进制）: ${data_rx}`);
+                }
+                else if (value[10] == 0x55) {
+                    const data_rx = (value[12]) | (value[13]<<8| (value[14]<<16)|(value[15]<<24));
+                    log(`RID: ${value[11]} 写入的数据为（10进制）: ${data_rx}`);
+                }
+                else if (value[10] == 0xAA) {
+                    if (value[11] == 0x01) {
+                         log(`参数存储成功！！！！！！！！！！！！！！！！！`);
+                    }
+                }
             } catch (error) {
                 log(`解析数据时出错: ${error.message}`);
                 log(`原始数据: ${bytesToHexString(value)}`);
@@ -560,29 +666,25 @@
                 const tor = parseFloat(torInput.value);
                 const kp = parseFloat(kpInput.value);
                 const kd = parseFloat(kdInput.value);
-
-                const id = idInput.value;
-                const mode = 1;
-                const exdata = float_to_uint(tor, T_MIN, T_MAX, 16);
-                const canID = ((id & 0xff) |
-                    ((exdata & 0xffff) << 8) |
-                    ((mode & 0x1f) << 24));
+                const canID = idInput.value;
 
                 const dataBuffer = new Uint8Array([
-                    0xA8, channel.value,
+                    0xA8, 
+                    channel.value,
                     canID & 0xff,           // 第一个字节
                     (canID >> 8) & 0xff,    // 第二个字节
                     (canID >> 16) & 0xff,   // 第三个字节
                     (canID >> 24) & 0xff,   // 第四个字节
-                    0x01, 0x08,
+                    0x00, 
+                    0x08,
                     float_to_uint(pos, P_MIN, P_MAX, 16) >> 8,
-                    float_to_uint(pos, P_MIN, P_MAX, 16),
-                    float_to_uint(vel, V_MIN, V_MAX, 16) >> 8,
-                    float_to_uint(vel, V_MIN, V_MAX, 16),
-                    float_to_uint(kp, KP_MIN, KP_MAX, 16) >> 8,
-                    float_to_uint(kp, KP_MIN, KP_MAX, 16),
-                    float_to_uint(kd, KD_MIN, KD_MAX, 16) >> 8,
-                    float_to_uint(kd, KD_MIN, KD_MAX, 16),
+                    float_to_uint(pos, P_MIN, P_MAX, 16)&0XFF,
+                    float_to_uint(vel, V_MIN, V_MAX, 12) >> 4,
+                    ((float_to_uint(vel, V_MIN, V_MAX, 12)&0xf) << 4)|(float_to_uint(kp, KP_MIN, KP_MAX, 12) >> 8),
+                    float_to_uint(kp, KP_MIN, KP_MAX, 12) &0xff,
+                    float_to_uint(kd, KD_MIN, KD_MAX, 12) >> 4,
+                    ((float_to_uint(kd, KD_MIN, KD_MAX, 12)&0xf)<<4)|(float_to_uint(tor, T_MIN, T_MAX, 12) >> 8),
+                    (float_to_uint(tor, T_MIN, T_MAX, 12) & 0xff),
                 ]);
 
                 // 验证数据范围
@@ -626,21 +728,18 @@
 
         // 设置各按钮的事件处理函数
         enableBtn.addEventListener('click', createButtonHandler(async () => {
-            const id = idInput.value;
-            const mode = 3;
-            const exdata = 0xfd;
-            const canID = ((id & 0xff) |
-                ((exdata & 0xffff) << 8) |
-                ((mode & 0x1f) << 24));
+            const canID = idInput.value;
             const dataBuffer = new Uint8Array([
-                0xA8, channel.value,
+                0xA8,// 帧头
+                channel.value,// 通道号
                 canID & 0xff,           // 第一个字节
                 (canID >> 8) & 0xff,    // 第二个字节
                 (canID >> 16) & 0xff,   // 第三个字节
                 (canID >> 24) & 0xff,   // 第四个字节
-                0x01, 0x08,
-                0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00,
+                0x00, //标准帧
+                0x08,// 数据长度
+                0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFC,
             ]);
             const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
 
@@ -653,21 +752,18 @@
         }, "使能"));
 
         disableBtn.addEventListener('click', createButtonHandler(async () => {
-            const id = idInput.value;
-            const mode = 4;
-            const exdata = 0xfd;
-            const canID = ((id & 0xff) |
-                ((exdata & 0xffff) << 8) |
-                ((mode & 0x1f) << 24));
+            const canID = idInput.value;
             const dataBuffer = new Uint8Array([
-                0xA8, channel.value,
+                0xA8,// 帧头
+                channel.value,// 通道号
                 canID & 0xff,           // 第一个字节
                 (canID >> 8) & 0xff,    // 第二个字节
                 (canID >> 16) & 0xff,   // 第三个字节
                 (canID >> 24) & 0xff,   // 第四个字节
-                0x01, 0x08,
-                0x01, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00,
+                0x00, //标准帧
+                0x08,// 数据长度
+                0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFD,
             ]);
             const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
 
@@ -680,21 +776,18 @@
         }, "失能"));
 
         zeroBtn.addEventListener('click', createButtonHandler(async () => {
-            const id = idInput.value;
-            const mode = 6;
-            const exdata = 0x00;
-            const canID = ((id & 0xff) |
-                ((exdata & 0xffff) << 8) |
-                ((mode & 0x1f) << 24));
+            const canID = idInput.value;
             const dataBuffer = new Uint8Array([
-                0xA8, channel.value,
+                0xA8,// 帧头
+                channel.value,// 通道号
                 canID & 0xff,           // 第一个字节
                 (canID >> 8) & 0xff,    // 第二个字节
                 (canID >> 16) & 0xff,   // 第三个字节
                 (canID >> 24) & 0xff,   // 第四个字节
-                0x01, 0x08,
-                0x01, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00,
+                0x00, //标准帧
+                0x08,// 数据长度
+                0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFE,
             ]);
             const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
 
@@ -707,20 +800,28 @@
         }, "设置零点"));
 
         setIDBtn.addEventListener('click', createButtonHandler(async () => {
-            const id = idInput.value;
-            const targetID = targetIDInput.value;
-            const mode = 7;
-            const exdata = 0xfd;
-            const canID = ((id & 0xff) | ((exdata & 0xff) << 8) | ((targetID & 0xff) << 16) | ((mode & 0x1f) << 24));
+            const configID = 0x7ff;
+            const canID = idInput.value;
+            const data = targetIDInput.value;
+
             const dataBuffer = new Uint8Array([
-                0xA8, channel.value,
-                canID & 0xff,           // 第一个字节
-                (canID >> 8) & 0xff,    // 第二个字节
-                (canID >> 16) & 0xff,   // 第三个字节
-                (canID >> 24) & 0xff,   // 第四个字节
-                0x01, 0x08,
-                0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00,
+                0xA8,// 帧头
+                channel.value,// 通道号
+                configID & 0xff,           // 第一个字节
+                (configID >> 8) & 0xff,    // 第二个字节
+                (configID >> 16) & 0xff,   // 第三个字节
+                (configID >> 24) & 0xff,   // 第四个字节
+                0x00, //标准帧
+                0x08,// 数据长度
+
+                canID & 0xff,
+                (canID >> 8) & 0xff, 
+                0x55, 
+                0x08,//接收 ID [0,0x7FF]
+                data & 0xff,           // 第一个字节
+                (data >> 8) & 0xff,    // 第二个字节
+                (data >> 16) & 0xff,   // 第三个字节
+                (data >> 24) & 0xff,   // 第四个字节
             ]);
             const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
 
@@ -731,6 +832,147 @@
                 throw new Error(`USB传输失败，状态: ${result.status}`);
             }
         }, "设置ID"));
+
+        setMasterIDBtn.addEventListener('click', createButtonHandler(async () => {
+            const configID = 0x7ff;
+            const canID = idInput.value;
+            const data = targetMasterIDInput.value;
+
+            const dataBuffer = new Uint8Array([
+                0xA8,// 帧头
+                channel.value,// 通道号
+                configID & 0xff,           // 第一个字节
+                (configID >> 8) & 0xff,    // 第二个字节
+                (configID >> 16) & 0xff,   // 第三个字节
+                (configID >> 24) & 0xff,   // 第四个字节
+                0x00, //标准帧
+                0x08,// 数据长度
+
+                canID & 0xff,
+                (canID >> 8) & 0xff, 
+                0x55, 
+                0x07,
+                data & 0xff,           // 第一个字节
+                (data >> 8) & 0xff,    // 第二个字节
+                (data >> 16) & 0xff,   // 第三个字节
+                (data >> 24) & 0xff,   // 第四个字节
+            ]);
+            const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
+
+            // 通过USB发送数据
+            const result = await usbDevice.transferOut(1, crcDataBuffer);
+
+            if (result.status !== 'ok') {
+                throw new Error(`USB传输失败，状态: ${result.status}`);
+            }
+        }, "设置MasterID"));
+
+
+        readconfigBtn.addEventListener('click', createButtonHandler(async () => {
+            const configID = 0x7ff;
+            const canID = idInput.value;
+            const RID = configIDInput.value;
+            const dataBuffer = new Uint8Array([
+                0xA8,// 帧头
+                channel.value,// 通道号
+                configID & 0xff,           // 第一个字节
+                (configID >> 8) & 0xff,    // 第二个字节
+                (configID >> 16) & 0xff,   // 第三个字节
+                (configID >> 24) & 0xff,   // 第四个字节
+                0x00, //标准帧
+                0x08,// 数据长度
+
+                canID & 0xff,
+                (canID >> 8) & 0xff, 
+                0x33, 
+                RID,    
+                0x00,    // 第一个字节
+                0x00,    // 第二个字节
+                0x00,    // 第三个字节
+                0x00,    // 第四个字节
+            ]);
+            const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
+
+            // 通过USB发送数据
+            const result = await usbDevice.transferOut(1, crcDataBuffer);
+
+            if (result.status !== 'ok') {
+                throw new Error(`USB传输失败，状态: ${result.status}`);
+            }
+        }, "读取电机参数"));
+
+        writeconfigBtn.addEventListener('click', createButtonHandler(async () => {
+            const configID = 0x7ff;
+            const canID = idInput.value;
+            const RID = configIDInput.value;
+            const data = configvalueInput.value;
+
+            const dataBuffer = new Uint8Array([
+                0xA8,// 帧头
+                channel.value,// 通道号
+                configID & 0xff,           // 第一个字节
+                (configID >> 8) & 0xff,    // 第二个字节
+                (configID >> 16) & 0xff,   // 第三个字节
+                (configID >> 24) & 0xff,   // 第四个字节
+                0x00, //标准帧
+                0x08,// 数据长度
+
+                canID & 0xff,
+                (canID >> 8) & 0xff, 
+                0x55, 
+                RID,
+                data & 0xff,           // 第一个字节
+                (data >> 8) & 0xff,    // 第二个字节
+                (data >> 16) & 0xff,   // 第三个字节
+                (data >> 24) & 0xff,   // 第四个字节
+            ]);
+            const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
+
+            // 通过USB发送数据
+            const result = await usbDevice.transferOut(1, crcDataBuffer);
+            log(`写入电机参数: ${bytesToHexString(crcDataBuffer)}`);
+
+            if (result.status !== 'ok') {
+                throw new Error(`USB传输失败，状态: ${result.status}`);
+            }
+        }, "写入电机参数"));
+
+
+        saveconfigBtn.addEventListener('click', createButtonHandler(async () => {
+            const configID = 0x7ff;
+
+            const canID = idInput.value;
+
+            const dataBuffer = new Uint8Array([
+                0xA8,// 帧头
+                channel.value,// 通道号
+                configID & 0xff,           // 第一个字节
+                (configID >> 8) & 0xff,    // 第二个字节
+                (configID >> 16) & 0xff,   // 第三个字节
+                (configID >> 24) & 0xff,   // 第四个字节
+                0x00, //标准帧
+                0x08,// 数据长度
+
+                canID & 0xff,
+                (canID >> 8) & 0xff, 
+                0xAA, 
+                0x00,    //接收 ID [0,0x7FF]
+                0x00,    // 第一个字节
+                0x00,    // 第二个字节
+                0x00,    // 第三个字节
+                0x00,    // 第四个字节
+            ]);
+            const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
+
+            // 通过USB发送数据
+            const result = await usbDevice.transferOut(1, crcDataBuffer);
+            log(`写入电机参数: ${bytesToHexString(crcDataBuffer)}`);
+
+            if (result.status !== 'ok') {
+                throw new Error(`USB传输失败，状态: ${result.status}`);
+            }
+        }, "存储电机参数"));
+
 
         // 日志输出
         function log(message) {
