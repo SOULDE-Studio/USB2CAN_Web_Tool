@@ -96,9 +96,9 @@
     <div class="flex-container">
         <button id="connectBtn">连接串口</button>
         <button id="zeroBtn">设置零点</button>
-        <button id="setIDBtn">设置电机ID</button>
         <button id="readID">查询电机ID</button>
         <button id="resetID">重置电机ID为0x01</button>
+        <button id="setIDBtn">设置电机ID</button>
         <button id="readmode">查询电机通信模式</button>
 
     </div>
@@ -107,7 +107,7 @@
             <option value="1">CAN通道1</option>
             <option value="2">CAN通道2</option>
         </select>
-        <textarea id="idInput" placeholder="要控制的电机ID,新电机默认为0"></textarea>
+        <textarea id="idInput" placeholder="要控制的电机ID"></textarea>
         <textarea id="targetIDInput" placeholder="输入想要改成的电机ID，设置ID时使用"></textarea>
 
     </div>
@@ -133,7 +133,7 @@
     </div>
     
     <div>
-        <p>电机状态数据（仅在发送使能、失能、mit控制命令时准确）</p>
+        <p>电机状态数据（仅在发送mit控制命令时更新）</p>
         <textarea id="velState" placeholder="0.0"
             style="height: 50px;width:100%; border: 1px solid #ccc; overflow-y: auto; margin-top: 10px;"></textarea>
     </div>
@@ -143,7 +143,7 @@
     </div>
     <div>
         <p>若需自己编程控制电机可参考下面的开源库：</p>
-        <a href="https://gitee.com/ding-lab/USB2CAN-Demo-DM">Linux下因克斯电机控制案例开源链接    </a>
+        <a href="https://gitee.com/ding-lab/USB2CAN-Demo-ENCOS">Linux下因克斯电机控制案例开源链接    </a>
     </div>
     <h3>本工具需要与专用USB2两路CAN模块配套使用，相关链接：</h3>
     <div>
@@ -151,7 +151,7 @@
         <p>---</p>
         <a href="https://pan.baidu.com/s/1EwYDNQ0jMKyTSvJEEcj6aw?pwd=10ob">模块说明书以及SDK下载地址</a>
         <p>---</p>
-        <a href="https://e.tb.cn/h.64misbVFgC99Sp6?tk=eKKrex5NSR0CZ193">因克斯电机购买地址</a>
+        <a href=" http://encos.cn/Product.aspx">因克斯电机购买地址</a>
     </div>
 
     <script>
@@ -435,6 +435,11 @@
 
 
             try {
+
+                // 转换为16进制显示
+                const hexStr = bytesToHexString(value);
+                log(`接收16进制: ${hexStr}`);
+
                 const CANID = value[2]| (value[3] << 8)| (value[4] << 16) | (value[5] << 24);//value[8]-value[15]是数据
                 if(CANID==0x7FF)
                 {
@@ -472,7 +477,7 @@
                     const current_speed = value[8+3]<<4|(value[8+4]&0xF0)>>4;
                     const current_current = (value[8+4]&0x0F)<<8|value[8+5];
                     const current_temp_Rotor = (value[8+6]-50)/2;
-                    const current_temp_MOS = (value[15]);
+                    const current_temp_MOS =  (value[15]-50)/2;
 
                     // 转换
                     const current_position_f = uint_to_float(current_position, P_MIN, P_MAX, 16);
@@ -486,9 +491,7 @@
                     });
                 }
 
-                // 转换为16进制显示
-                const hexStr = bytesToHexString(value);
-                log(`接收16进制: ${hexStr}`);
+                
             } catch (error) {
                 log(`解析数据时出错: ${error.message}`);
                 log(`原始数据: ${bytesToHexString(value)}`);
@@ -592,12 +595,13 @@
                 0x00, 
                 0x03,
 
-                0xFF, 0xFF, 0xFF, 0xFE,
+                0x00, 0x00, 0x00, 0x00,
             ]);
             const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
             const writer = serialPort.writable.getWriter();
             await writer.write(crcDataBuffer);
             writer.releaseLock();
+            log(`发送16进制: ${bytesToHexString(crcDataBuffer)}`);
         }, "设置零点"));
        
         //设置电机ID
@@ -625,12 +629,13 @@
                 0x04,
                 (data >> 8) & 0xff, 
                 data & 0xff, 
-                0xFF, 0xFE,
+                0x00, 0x00,
             ]);
             const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
             const writer = serialPort.writable.getWriter();
             await writer.write(crcDataBuffer);
             writer.releaseLock();
+            log(`发送16进制: ${bytesToHexString(crcDataBuffer)}`);
         }, "设置ID"));
 
         readID.addEventListener('click', createButtonHandler(async () => {
@@ -654,12 +659,13 @@
                 0x00, 
                 0x82,
 
-                0x7f, 0x7f, 0xFF, 0xFE,
+                0x00, 0x00, 0x00, 0x00,
             ]);
             const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
             const writer = serialPort.writable.getWriter();
             await writer.write(crcDataBuffer);
             writer.releaseLock();
+            log(`发送16进制: ${bytesToHexString(crcDataBuffer)}`);
         }, "查询电机ID"));
 
   
@@ -686,12 +692,13 @@
                 0x05,
                 0x7f, 
                 0x7f, 
-                0xFF, 0xFE,
+                0x00, 0x00,
             ]);
             const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
             const writer = serialPort.writable.getWriter();
             await writer.write(crcDataBuffer);
             writer.releaseLock();
+            log(`发送16进制: ${bytesToHexString(crcDataBuffer)}`);
         }, "重置电机ID为0x01"));
 
         readmode.addEventListener('click', createButtonHandler(async () => {
@@ -716,12 +723,14 @@
                 0x00, 
                 0x81,
 
-                0xFF, 0xFF, 0xFF, 0xFE,
+                0x00, 0x00, 0x00, 0x00,
             ]);
              
             const crcDataBuffer = appendCRC8CheckSum(dataBuffer);
             const writer = serialPort.writable.getWriter();
             await writer.write(crcDataBuffer);
+            writer.releaseLock();
+            log(`发送16进制: ${bytesToHexString(crcDataBuffer)}`);
         }, "查询电机通信模式"));
 
      
