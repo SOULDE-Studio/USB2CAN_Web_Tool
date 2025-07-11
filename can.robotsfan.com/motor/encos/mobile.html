@@ -579,12 +579,12 @@
                         // 转换
                         const current_position_f = uint_to_float(current_position, P_MIN, P_MAX, 16);
                         const current_speed_f = uint_to_float(current_speed, V_MIN, V_MAX, 12);
-                        const current_current_f = uint_to_float(current_current, T_MIN, T_MAX, 12);
+                        const current_current_f = uint_to_float(current_current, I_MIN, I_MAX, 12);
 
 
                         // 更新UI - 使用requestAnimationFrame确保UI响应性
                         requestAnimationFrame(() => {
-                            velState.innerText = `状态信息: ${motorerror.toFixed(0)}  当前电机ID:${CANID.toFixed(0)}  位置: ${current_position_f.toFixed(4)}rad 速度: ${current_speed_f.toFixed(4)}rad/s  力矩: ${current_current_f.toFixed(4)}Nm MOS温度: ${current_temp_MOS.toFixed(2)}摄氏度 Rotor温度: ${current_temp_Rotor.toFixed(2)}摄氏度`;
+                            velState.innerText = `状态信息: ${motorerror.toFixed(0)}  当前电机ID:${CANID.toFixed(0)}  位置: ${current_position_f.toFixed(4)}rad 速度: ${current_speed_f.toFixed(4)}rad/s  电流: ${current_current_f.toFixed(4)}A MOS温度: ${current_temp_MOS.toFixed(2)}摄氏度 Rotor温度: ${current_temp_Rotor.toFixed(2)}摄氏度`;
                         });
                     }
 
