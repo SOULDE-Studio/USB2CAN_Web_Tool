@@ -89,10 +89,25 @@
             margin-bottom: 20px;
         }
     </style>
+    <!-- Matomo -->
+    <script>
+        var _paq = window._paq = window._paq || [];
+        /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+            var u="//matomo.robotsfan.com/";
+            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setSiteId', '6']);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+    </script>
+    <!-- End Matomo Code -->
 </head>
 
 <body>
-    <h3>USB2CAN----因克斯电机调试工具</h3>
+    <h3>USB2CAN----因克斯电机调试工具_v4.1</h3>
     <div class="flex-container">
         <button id="connectBtn">连接串口</button>
         <button id="zeroBtn">设置零点</button>
@@ -560,7 +575,6 @@
         }
 
         // 设置各按钮的事件处理函数
-        //使能电机
 
         //设置零点
         zeroBtn.addEventListener('click', createButtonHandler(async () => {
@@ -877,6 +891,11 @@
             }
         }
     </script>
+    <div style="width:300px;margin:0 auto;text-align:left;white-space: nowrap;">
+        <a href=" " target="_blank" style="text-decoration:none;" rel="noopener">
+            <span style="color:#939393;font-size:15px;vertical-align:middle;">辽ICP备2021010164号</span>
+        </a >
+    </div>
 </body>
 
 </html>
