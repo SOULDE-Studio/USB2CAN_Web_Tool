@@ -92,7 +92,7 @@
 </head>
 
 <body>
-    <h3>USB2CAN----因克斯电机调试工具</h3>
+    <h3>USB2CAN----因克斯电机调试工具-仅支持Edge或谷歌浏览器使用</h3>
     <div class="flex-container">
         <button id="connectBtn">连接串口</button>
         <button id="zeroBtn">设置零点</button>
@@ -382,7 +382,7 @@
                 serialPort = await navigator.serial.requestPort();
                 // 配置串口参数（根据设备需求调整）
                 await serialPort.open({
-                    baudRate: 9600,       // 波特率
+                    baudRate: 4000000,       // 波特率
                     dataBits: 8,          // 数据位
                     parity: 'none',       // 校验位
                     stopBits: 1,          // 停止位
